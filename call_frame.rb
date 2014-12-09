@@ -1,17 +1,16 @@
 module Micro
   class CallFrame
-
-    def initialize(state, function, local = [], depth=0)
+    def initialize(state, function, locals = [], depth=0)
       @state = state
       @code = function.code
-      @literals = function.literals
+      @literals = function.operands
       @locals = locals
       @depth = depth
       @stack = [] 
     end
 
     def execute
-      @code.each |instruction| do 
+      @code.each do |instruction| 
         case instruction.opcode 
         when :push_literal 
           @stack.push @literals[instruction.opcode] 
@@ -37,20 +36,24 @@ module Micro
         when :div 
           operand_one = @stack.pop 
           operand_two = @stack.pop 
-          check_type(Fixnum, operand_one, operand_two) raise ZeroDivisionError if operand_two == 0 
+          check_type(Fixnum, operand_one, operand_two) 
+          raise ZeroDivisionError, "cant divide by zero" if operand_two == 0 
           @stack.push operand_one / operand_two 
         when :call 
           argsnum = instruction.operand 
           function_name = @stack.pop 
           function = @state.find_function(function_name) 
-          locals = [] argsnum.times { locals.push @stack.pop } 
-          if !function raise Namerror, 
-            "function #{function_name} doesnot exist" 
+          locals = [] 
+          argsnum.times { locals.push @stack.pop } 
+          
+          if !function 
+            raise Namerror, "function #{function_name} doesnot exist" 
           end 
 
           if @depth > MAX_STACK_DEPTH 
             raise "Call stack level too deep" 
           end 
+
           call_frame = CallFrame.new(@state, function, locals, @depth + 1)
         when :ret
           @stack.pop

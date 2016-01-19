@@ -52,7 +52,7 @@ module Micro
             raise Namerror, "function #{function_name} doesnot exist"
           end
 
-          if @depth > ::VM::MAX_STACK_DEPTH
+          if @depth > VM::MAX_STACK_DEPTH
             raise "Call stack level too deep"
           end
 

@@ -9,20 +9,20 @@ module Micro
     Function = Struct.new(:name, :code, :operands)
     MAX_STACK_DEPTH = 128
 
-    def load(filename) 
+    def load(filename)
       @functions = CodeLoader.new.load_file(filename)
-      self 
-    end 
+      self
+    end
 
-    def run() 
-      main = find_function(:main) 
-      @frame = CallFrame.new(self, main) 
+    def run()
+      main = find_function(:main)
+      @frame = CallFrame.new(self, main)
       @frame.execute
     end
 
     def find_function(name)
-      @functions.detect {|function| function.name == name.to_sym }
-    end 
+      @functions.detect {|function| function.name.to_sym == name }
+    end
   end
 end
 
